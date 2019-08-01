@@ -23,8 +23,10 @@ RUN git clone https://github.com/badlands-model/badlands.git && \
 VOLUME /live/share
 WORKDIR /live
 
-# install badlands-demo
-RUN git clone https://github.com/badlands-model/badlands-workshop.git
+# install badlands workshop and examples
+RUN git clone https://github.com/badlands-model/badlands-workshop.git && \
+  mv badlands-workshop/workshop . && \
+  mv badlands-workshop/examples .
 
 
 ENV LD_LIBRARY_PATH=/live/lib/:/live/share
