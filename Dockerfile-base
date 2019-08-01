@@ -1,0 +1,174 @@
+FROM debian:latest
+MAINTAINER Tristan Salles
+
+# install things
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+        bash-completion \
+        build-essential \
+        git \
+        python3-minimal \
+        python3-dev \
+        python3-pip \
+        libxml2-dev \
+        xorg-dev \
+        ssh \
+        curl \
+        libfreetype6-dev \
+        libpng-dev \
+        libxft-dev \
+        xvfb \
+        freeglut3 \
+        freeglut3-dev \
+        libgl1-mesa-dri \
+        libgl1-mesa-glx \
+        python3-tk \
+        mesa-utils \
+        libavcodec-dev \
+        libavformat-dev \
+        libavutil-dev \
+        libswscale-dev \
+        rsync \
+        vim \
+        less \
+        xauth \
+        swig \
+        gdb-minimal \
+        python3-dbg \
+        cmake \
+        python3-setuptools \
+        wget \
+        gfortran  && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LANG=C.UTF-8
+# Install setuptools and wheel first, needed by plotly
+RUN pip3 install -U setuptools  && \
+    pip3 install -U wheel       && \
+    pip3 install --no-cache-dir packaging \
+        appdirs \
+        numpy \
+        jupyter \
+        plotly \
+        matplotlib \
+        pillow \
+        pyvirtualdisplay \
+        ipython \
+        ipyparallel \
+        pint \
+        sphinx \
+        sphinx_rtd_theme \
+        sphinxcontrib-napoleon \
+        mock \
+        scipy \
+        tabulate \
+        scons
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.5 1
+
+# Hack for scons.. should be able to remove in future.
+ENV SCONS_LIB_DIR /usr/local/lib/python3.5/dist-packages/scons-3.0.1
+
+# Hack for scons.. should be able to remove in future.
+ENV SCONS_LIB_DIR /usr/local/lib/python3.5/dist-packages/scons-3.0.1
+
+# install extras in a new layer
+RUN pip3 install --no-cache-dir h5py \
+      tribad \
+      numpy>=1.15.0 \
+      h5py>=2.8.0 \
+      six>=1.11.0 \
+      setuptools>=38.4.0 \
+      pandas>=0.24 \
+      scipy>=1.2 \
+      scikit-image>=0.15 \
+      gFlex>=1.1.0 \
+      matplotlib>=3.0
+
+# Install Tini.. this is required because CMD (below) doesn't play nice with notebooks for some reason: https://github.com/ipython/ipython/issues/7062, https://github.com/jupyter/notebook/issues/334
+RUN curl -L https://github.com/krallin/tini/releases/download/v0.10.0/tini > tini && \
+    echo "1361527f39190a7338a0b434bd8c88ff7233ce7b9a4876f3315c22fce7eca1b0 *tini" | sha256sum -c - && \
+    mv tini /usr/local/bin/tini && \
+    chmod +x /usr/local/bin/tini
+
+# expose notebook port
+EXPOSE 8888
+
+# expose lavavu port
+EXPOSE 9999
+
+# LavaVu stuff
+# script for xvfb-run.  all docker commands will effectively run under this via the entrypoint
+RUN printf "#\041/bin/sh \n rm -f /tmp/.X99-lock && xvfb-run -s '-screen 0 1600x1200x16' \$@" >> /usr/local/bin/xvfbrun.sh && \
+chmod +x /usr/local/bin/xvfbrun.sh
+
+RUN git clone https://github.com/j08lue/pycpt.git && \
+    cd pycpt && \
+    git checkout b45f720d09da79bcd567c5cbba9a554b0a7cc1d9 && \
+    python3 setup.py install && \
+    cd .. && \
+    rm -rf pycpt
+
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+        gmsh \
+        python3-gdal \
+        gdal-bin \
+        libgeos++ \
+        libgeos-dev \
+        libgdal-dev \
+        libproj-dev \
+        libproj-dev
+
+RUN python3 -m pip install --no-cache-dir setuptools wheel && \
+    python3 -m pip install --no-cache-dir \
+    pathlib \
+    pandas \
+    descartes \
+    meshio \
+    shapely \
+    geopy \
+    rasterio \
+    pygeotools \
+    pygmsh \
+    meshplex \
+    ruamel.yaml \
+    stripy
+
+# add default user jovyan and change permissions on NB_WORK
+#ENV NB_USER jovyan
+#RUN useradd -m -s /bin/bash -N jovyan
+#USER $NB_USER
+#ENV NB_WORK /workspace
+
+# create a volume
+RUN mkdir /live && \
+    mkdir /live/lib
+
+VOLUME /live/share
+WORKDIR /live
+
+# LavaVu stuff
+# script for xvfb-run.  all docker commands will effectively run under this via the entrypoint
+RUN printf "#\041/bin/sh \n rm -f /tmp/.X99-lock && xvfb-run -s '-screen 0 1600x1200x16' \$@" >> /usr/local/bin/xvfbrun.sh && \
+chmod +x /usr/local/bin/xvfbrun.sh
+
+# Add Tini
+EXPOSE 8888
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/local/bin/tini
+RUN chmod +x /usr/local/bin/tini
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
+
+# expose LavaVu port
+EXPOSE 9999
+
+# note we use xvfb which to mimic the X display for lavavu
+ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
+
+
+# launch notebook
+ADD run-jupyter.sh /usr/local/bin/run-jupyter.sh
+RUN chmod +x /usr/local/bin/run-jupyter.sh
+CMD /usr/local/bin/run-jupyter.sh
