@@ -5,7 +5,7 @@ https://hub.docker.com/u/badlandsmodel/
 ### Local installation
 
 ```
-docker build -t badlandsmodel/badlands-base:python3 -f Dockerfile-base .`
+docker build -t badlandsmodel/badlands-base:python3 -f Dockerfile-base .
 ```
 
 ### Pushing the containers registry
