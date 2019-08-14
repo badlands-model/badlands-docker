@@ -8,7 +8,8 @@ RUN pip3 install --no-cache-dir plotly \
   colorlover
 
 # install badlands
-RUN pip3 install --no-cache-dir badlands badlands-companion
+RUN python3 -m pip install --no-cache-dir badlands-companion
+RUN python3 -m pip install --no-cache-dir badlands
 
 # setup space for working in
 VOLUME /live/share
@@ -16,9 +17,10 @@ WORKDIR /live
 
 # install badlands workshop, companion and examples
 RUN git clone https://github.com/badlands-model/badlands-workshop.git && \
-  mv badlands-workshop/workshop . && \
-  mv badlands-workshop/examples . && \
-  mv badlands-workshop/companion .
+  mv badlands-workshop/workshop /live/lib && \
+  mv badlands-workshop/examples /live/lib && \
+  mv badlands-workshop/companion /live/lib && \
+  rm -rf badlands-workshop
 
 ENV LD_LIBRARY_PATH=/live/lib/:/live/share
 
