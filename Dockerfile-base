@@ -142,6 +142,21 @@ RUN python3 -m pip install --no-cache-dir setuptools wheel && \
 #USER $NB_USER
 #ENV NB_WORK /workspace
 
+# install extras in a new layer
+RUN python3 -m pip install --no-cache-dir \
+        ipython \
+        jupyter \
+        lavavu \
+        scikit-fuzzy
+
+RUN python3 -m pip instal --no-cache-dir -U git+https://github.com/matplotlib/basemap.git
+
+# Install Tini.. this is required because CMD (below) doesn't play nice with notebooks for some reason: https://github.com/ipython/ipython/issues/7062, https://github.com/jupyter/notebook/issues/334
+RUN curl -L https://github.com/krallin/tini/releases/download/v0.10.0/tini > tini && \
+    echo "1361527f39190a7338a0b434bd8c88ff7233ce7b9a4876f3315c22fce7eca1b0 *tini" | sha256sum -c - && \
+    mv tini /usr/local/bin/tini && \
+    chmod +x /usr/local/bin/tini
+
 # create a volume
 RUN mkdir /live && \
     mkdir /live/lib
