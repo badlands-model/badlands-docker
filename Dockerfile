@@ -11,9 +11,8 @@ RUN apt-get update -qq && \
     gettext && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+
 WORKDIR /live
-RUN rm -rf /live/lib
-COPY Notebooks Notebooks/
 
 ENV NB_USER jovyan
 ENV NB_UID 1000
@@ -31,6 +30,12 @@ RUN mkdir -p /usr/local/files && chown -R jovyan:jovyan /usr/local/files
 ADD --chown=jovyan:jovyan scripts  /usr/local/files
 ENV PATH=/usr/local/files:${PATH}
 
+RUN rm -rf /live/lib
+RUN rm -rf /live/share
+
+WORKDIR /live
+ADD --chown=jovyan:jovyan Notebooks .
+
 # change ownership of everything
 ENV NB_USER jovyan
 RUN chown -R jovyan:jovyan /home/jovyan
@@ -44,7 +49,7 @@ ARG IMAGENAME_ARG
 ARG PROJ_NAME_ARG=bioLEC
 ARG NB_PORT_ARG=8888
 ARG NB_PASSWD_ARG=""
-ARG NB_DIR_ARG="Notebooks"
+ARG NB_DIR_ARG
 ARG START_NB_ARG="StartHere.ipynb"
 
 # The args need to go into the environment so they
