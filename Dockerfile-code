@@ -16,10 +16,11 @@ WORKDIR /live
 
 # install badlands workshop, companion and examples
 RUN git clone https://github.com/badlands-model/badlands-workshop.git && \
-  mv badlands-workshop/workshop /live/lib && \
-  mv badlands-workshop/examples /live/lib && \
-  mv badlands-workshop/companion /live/lib && \
-  rm -rf badlands-workshop
+  mv badlands-workshop/workshop /live/ && \
+  mv badlands-workshop/examples /live/ && \
+  mv badlands-workshop/companion /live/ && \
+  rm -rf badlands-workshop lib
+  
 
 # install badlands code
 RUN python3 -m pip install --no-cache-dir badlands==2.0.6
