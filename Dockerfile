@@ -15,6 +15,18 @@ WORKDIR /live
 RUN rm -rf /live/lib
 COPY Notebooks Notebooks/
 
+ENV NB_USER jovyan
+ENV NB_UID 1000
+ENV HOME /home/${NB_USER}
+
+RUN adduser --disabled-password \
+    --gecos "Default user" \
+    --uid ${NB_UID} \
+    ${NB_USER} || true  # dont worry about the error ... keep building
+
+RUN addgroup jovyan  || true
+RUN usermod -a -G jovyan jovyan || true
+
 RUN mkdir -p /usr/local/files && chown -R jovyan:jovyan /usr/local/files
 ADD --chown=jovyan:jovyan scripts  /usr/local/files
 ENV PATH=/usr/local/files:${PATH}
