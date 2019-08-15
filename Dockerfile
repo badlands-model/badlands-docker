@@ -31,7 +31,6 @@ ADD --chown=jovyan:jovyan scripts  /usr/local/files
 ENV PATH=/usr/local/files:${PATH}
 
 RUN rm -rf /live/lib
-RUN rm -rf /live/share
 
 WORKDIR /live
 ADD --chown=jovyan:jovyan Notebooks .
