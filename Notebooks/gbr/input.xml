@@ -9,7 +9,7 @@
              The default value is set to 1. Increasing the factor
              value will multiply the digital elevation model resolution
              accordingly.  -->
-        <resfactor>1</resfactor>
+        <resfactor>2</resfactor>
     </grid>
 
     <!-- Simulation time structure -->
@@ -119,7 +119,7 @@
         <!-- Wave interval [a] -->
         <twave>100.</twave>
         <!-- Wave grid resolution [m] -->
-        <wres>2000.</wres>
+        <wres>3000.</wres>
         <!-- Maximum depth for wave influence [m] -->
         <wbase>20</wbase>
         <!-- Number of wave climate temporal events. -->

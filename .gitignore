@@ -1,2 +1,7 @@
 
 .DS_Store
+Notebooks/corinth/.ipynb_checkpoints
+Notebooks/gbr/.ipynb_checkpoints
+Notebooks/.ipynb_checkpoints
+*.pyc
+*.pyc
