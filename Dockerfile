@@ -11,7 +11,6 @@ RUN apt-get update -qq && \
     gettext && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
 WORKDIR /live
 
 ENV NB_USER jovyan
@@ -30,7 +29,7 @@ RUN mkdir -p /usr/local/files && chown -R jovyan:jovyan /usr/local/files
 ADD --chown=jovyan:jovyan scripts  /usr/local/files
 ENV PATH=/usr/local/files:${PATH}
 
-RUN rm -rf /live/lib
+RUN rm -rf /live/lib /live/companion /live/examples /live/share /live/workshop
 
 WORKDIR /live
 ADD --chown=jovyan:jovyan Notebooks .
@@ -45,7 +44,7 @@ USER jovyan
 ## build-dockerfile.sh
 
 ARG IMAGENAME_ARG
-ARG PROJ_NAME_ARG=bioLEC
+ARG PROJ_NAME_ARG=badlands
 ARG NB_PORT_ARG=8888
 ARG NB_PASSWD_ARG=""
 ARG NB_DIR_ARG
