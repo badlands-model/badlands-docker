@@ -5,7 +5,8 @@ MAINTAINER Tristan Salles
 RUN pip3 install --no-cache-dir plotly \
   cmocean \
   pyevtk \
-  colorlover
+  colorlover \
+  netcdf4
 
 # install badlands companion
 RUN python3 -m pip install --no-cache-dir badlands-companion
