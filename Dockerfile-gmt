@@ -1,0 +1,57 @@
+FROM badlandsmodel/badlands:latest
+MAINTAINER Tristan Salles
+
+# install things
+RUN apt-get update -qq && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+        cdftools \
+        cmake \
+        build-essential \
+        libcurl4-gnutls-dev \
+        libnetcdf-dev
+        gawk \
+        gmt-gshhg-full \
+        gmt-dcw \
+        graphicsmagick \
+        ffmpeg \
+        xdg-utils \
+        python-sphin \
+        gdal-bin \
+        libgdal-dev \
+        libfftw3-dev \
+        libpcre3-dev \
+        liblapack-dev \
+        libblas-dev \
+        libglib2.0-dev \
+        ghostscript
+
+# install GMT
+RUN wget https://github.com/GenericMappingTools/gmt/releases/download/6.0.0/gmt-6.0.0-src.tar.xz && \
+    tar -xvf gmt-6.0.0-src.tar.xz && \
+    cd gmt-6.0.0/cmake/; cp ConfigUserTemplate.cmake ../ConfigUser.cmake && \
+    dpkg -L gmt-gshhg-full && \
+    dpkg -L gmt-dcw && \
+    mkdir build && \
+    cd build; cmake ..; cmake --build .; cmake --build . --target install
+    git checkout b45f720d09da79bcd567c5cbba9a554b0a7cc1d9 && \
+    python3 setup.py install && \
+    cd .. && \
+    rm -rf pycpt
+
+# setup space for working in
+VOLUME /live/share
+WORKDIR /live
+
+ENV LD_LIBRARY_PATH=/live/lib/:/live/share
+
+EXPOSE 8888
+ENV TINI_VERSION v0.18.0
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
+
+EXPOSE 9999
+
+# note we use xvfb which to mimic the X display for lavavu
+ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
+
+# launch notebook
+CMD /usr/local/bin/run-jupyter.sh
