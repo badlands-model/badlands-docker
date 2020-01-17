@@ -39,6 +39,9 @@ RUN cd gmt-6.0.0/build && \
     cmake --build . && \
     cmake --build . --target install
 
+RUN rm -rf gmt-6.0.0-src.tar.xz && \
+    rm -rf gmt-6.0.0
+
 # setup space for working in
 VOLUME /live/share
 WORKDIR /live
