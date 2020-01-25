@@ -9,7 +9,7 @@ RUN pip3 install --no-cache-dir plotly \
   netcdf4
 
 # install badlands companion
-RUN python3 -m pip install --no-cache-dir badlands-companion==1.0.1
+RUN python3 -m pip install --no-cache-dir badlands-companion==1.0.2
 
 # setup space for working in
 VOLUME /live/share
