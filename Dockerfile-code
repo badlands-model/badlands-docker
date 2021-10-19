@@ -1,4 +1,4 @@
-FROM badlandsmodel/badlands-base:python3
+FROM bad_dock_base:latest
 MAINTAINER Tristan Salles
 
 # install extras in a new layer
@@ -6,7 +6,10 @@ RUN pip3 install --no-cache-dir plotly \
   cmocean \
   pyevtk \
   colorlover \
-  netcdf4
+  netcdf4 \
+  similaritymeasures \
+  pyvista \
+  doegen 
 
 # install badlands companion
 RUN python3 -m pip install --no-cache-dir badlands-companion==1.0.2
@@ -24,7 +27,7 @@ RUN git clone https://github.com/badlands-model/badlands-workshop.git && \
 
 
 # install badlands code
-RUN python3 -m pip install --no-cache-dir badlands==2.0.13
+RUN python3 -m pip install --no-cache-dir badlands==2.2.1
 
 ENV LD_LIBRARY_PATH=/live/lib/:/live/share
 
