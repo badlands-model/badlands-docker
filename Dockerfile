@@ -39,7 +39,7 @@ ENV NB_USER jovyan
 RUN chown -R jovyan:jovyan /home/jovyan
 USER jovyan
 
-RUN python3 -m pip install --no-cache-dir jupyter jupyterlab
+RUN python3 -m pip install --no-cache-dir jupyter
 
 ## These are supplied by the build script
 ## build-dockerfile.sh
@@ -83,4 +83,6 @@ ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
 
 # launch notebook
 ADD --chown=jovyan:jovyan scripts/run-jupyter.sh scripts/run-jupyter.sh
-CMD scripts/run-jupyter.sh
+# CMD scripts/run-jupyter.sh
+
+CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
