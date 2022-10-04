@@ -72,7 +72,7 @@ ENV START_NB=$START_NB_ARG
 # Trust all notebooks
 RUN find -name \*.ipynb  -print0 | xargs -0 jupyter trust
 
-# expose notebook port server port
+# expose notebook port server port 
 EXPOSE $NB_PORT
 
 VOLUME /home/jovyan/$NB_DIR/share
