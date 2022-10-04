@@ -11,6 +11,8 @@ RUN apt-get update -qq && \
     gettext && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN python3 -m pip install --no-cache-dir jupyter
+
 WORKDIR /live
 
 ENV NB_USER jovyan
@@ -38,8 +40,6 @@ ADD --chown=jovyan:jovyan Notebooks .
 ENV NB_USER jovyan
 RUN chown -R jovyan:jovyan /home/jovyan
 USER jovyan
-
-RUN python3 -m pip install --no-cache-dir jupyter
 
 ## These are supplied by the build script
 ## build-dockerfile.sh
