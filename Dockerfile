@@ -39,6 +39,7 @@ ENV NB_USER jovyan
 RUN chown -R jovyan:jovyan /home/jovyan
 USER jovyan
 
+RUN python3 -m pip install --no-cache-dir jupyter jupyterlab
 
 ## These are supplied by the build script
 ## build-dockerfile.sh
