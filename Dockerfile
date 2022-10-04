@@ -83,6 +83,6 @@ ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
 
 # launch notebook
 ADD --chown=jovyan:jovyan scripts/run-jupyter.sh scripts/run-jupyter.sh
-# CMD scripts/run-jupyter.sh
+CMD scripts/run-jupyter.sh
 
-CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
+#CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
