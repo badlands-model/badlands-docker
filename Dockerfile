@@ -62,13 +62,8 @@ ENV NB_PASSWD=$NB_PASSWD_ARG
 ENV NB_DIR=$NB_DIR_ARG
 ENV START_NB=$START_NB_ARG
 
-
 ## NOW INSTALL NOTEBOOKS
-
-# (This is not standard - nothing to do here )
-
 ## The notebooks (and other files we are serving up)
-
 
 # Trust all notebooks
 RUN find -name \*.ipynb  -print0 | xargs -0 jupyter trust
