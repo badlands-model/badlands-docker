@@ -6,10 +6,10 @@ MAINTAINER Tristan Salles
 
 USER root
 
-RUN apt-get update -qq && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-    gettext && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update -qq && \
+#     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
+#     gettext && \
+#     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir jupyter
 
