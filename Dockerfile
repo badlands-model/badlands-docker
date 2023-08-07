@@ -1,83 +1,64 @@
-FROM badlandsmodel/badlands:latest
-MAINTAINER Tristan Salles
-
-##################################################
-# Non standard as the files come from the packages
-
-USER root
-
-# RUN apt-get update -qq && \
-#     DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-#     gettext && \
-#     apt-get clean && rm -rf /var/lib/apt/lists/*
-
-RUN python3 -m pip install --no-cache-dir jupyter
-
-WORKDIR /live
-
-ENV NB_USER jovyan
-ENV NB_UID 1000
-ENV HOME /home/${NB_USER}
-
-RUN adduser --disabled-password \
-    --gecos "Default user" \
-    --uid ${NB_UID} \
-    ${NB_USER} || true  # dont worry about the error ... keep building
-
-RUN addgroup jovyan  || true
-RUN usermod -a -G jovyan jovyan || true
-
-RUN mkdir -p /usr/local/files && chown -R jovyan:jovyan /usr/local/files
-ADD --chown=jovyan:jovyan scripts  /usr/local/files
-ENV PATH=/usr/local/files:${PATH}
-
-RUN rm -rf /live/lib /live/companion /live/examples /live/workshop
-
-WORKDIR /live
-ADD --chown=jovyan:jovyan Notebooks .
-
-# change ownership of everything
-ENV NB_USER jovyan
-RUN chown -R jovyan:jovyan /home/jovyan
-USER jovyan
-
-## These are supplied by the build script
-## build-dockerfile.sh
-
-ARG IMAGENAME_ARG
-ARG PROJ_NAME_ARG=badlands
-ARG NB_PORT_ARG=8888
-ARG NB_PASSWD_ARG=""
-ARG NB_DIR_ARG
-ARG START_NB_ARG="StartHere.ipynb"
-
-# The args need to go into the environment so they
-# can be picked up by commands/templates (defined previously)
-# when the container runs
-
-ENV IMAGENAME=$IMAGENAME_ARG
-ENV PROJ_NAME=$PROJ_NAME_ARG
-ENV NB_PORT=$NB_PORT_ARG
-ENV NB_PASSWD=$NB_PASSWD_ARG
-ENV NB_DIR=$NB_DIR_ARG
-ENV START_NB=$START_NB_ARG
-
-## NOW INSTALL NOTEBOOKS
-## The notebooks (and other files we are serving up)
-
-# Trust all notebooks
-RUN find -name \*.ipynb  -print0 | xargs -0 jupyter trust
-
-# expose notebook port server port 
-EXPOSE $NB_PORT
-
-VOLUME /home/jovyan/$NB_DIR/share
-
-# note we use xvfb which to mimic the X display for lavavu
-ENTRYPOINT ["/usr/local/bin/xvfbrun.sh"]
-
-# launch notebook
-ADD --chown=jovyan:jovyan scripts/run-jupyter.sh scripts/run-jupyter.sh
-CMD scripts/run-jupyter.sh
-
-#CMD ["jupyter", "notebook", "--ip", "0.0.0.0", "--no-browser", "--allow-root"]
+FROM continuumio/anaconda3
+MAINTAINER "Tristan Salles"
+RUN apt-get update 
+RUN /opt/conda/bin/conda config --env --add channels defaults 
+RUN /opt/conda/bin/conda config --env --add channels conda-forge 
+RUN /opt/conda/bin/conda config --env --add channels anaconda
+RUN /opt/conda/bin/conda update -n base -c defaults conda 
+RUN /opt/conda/bin/conda install python=3.8 -y 
+RUN /opt/conda/bin/conda install anaconda-client -y 
+RUN /opt/conda/bin/conda install jupyter -y 
+RUN /opt/conda/bin/conda install numpy pandas scikit-learn scikit-image seaborn h5py -y 
+RUN /opt/conda/bin/conda install compilers gfortran netCDF4 -y 
+RUN /opt/conda/bin/conda install pillow scipy descartes pyvista -y
+RUN /opt/conda/bin/conda install meshplex -y 
+RUN /opt/conda/bin/conda install make -y 
+RUN /opt/conda/bin/conda install pyvirtualdisplay -y
+RUN /opt/conda/bin/conda install gflex -y
+RUN /opt/conda/bin/conda install cmocean -y
+RUN /opt/conda/bin/conda install -c "conda-forge/label/cf201901" triangle -y
+RUN /opt/conda/bin/conda install colorlover
+RUN /opt/conda/bin/conda install pyevtk
+RUN apt-get install -yq --no-install-recommends \ 
+    build-essential \
+    mesa-utils \
+    libglu1-mesa-dev \
+    libosmesa6-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswscale-dev \
+    zlib1g-dev
+RUN /opt/conda/bin/conda update jupyter
+RUN pip install nbconvert --upgrade
+RUN pip install lavavu
+RUN pip install triangle
+# Install badlands
+RUN ["mkdir", "/usr/lib64/"]
+RUN ln -s /opt/conda/x86_64-conda-linux-gnu/sysroot/lib64/librt.so.1 /lib64/librt.so.1
+RUN ln -s /opt/conda/x86_64-conda-linux-gnu/sysroot/usr/lib64/libc_nonshared.a /usr/lib64/libc_nonshared.a
+RUN ln -s /opt/conda/x86_64-conda-linux-gnu/sysroot/lib64/libc.so.6 /lib64/libc.so.6 
+RUN ln -s /opt/conda/x86_64-conda-linux-gnu/sysroot/lib64/libpthread.so.0 /lib64/libpthread.so.0
+RUN ln -s /opt/conda/x86_64-conda-linux-gnu/sysroot/usr/lib64/libpthread_nonshared.a /usr/lib64/libpthread_nonshared.a
+COPY packages/badlands /root/badlands
+RUN cd /root/badlands/; python3 setup.py install
+# Install companion
+COPY packages/companion /root/companion
+RUN cd /root/companion/; python3 setup.py install
+# Define shared volume folder
+RUN ["mkdir", "main"]
+RUN ["mkdir", "main/notebooks"]
+# Add workshop
+COPY packages/workshop main/workshop
+# LavaVu stuff
+RUN apt-get install -yq --no-install-recommends xvfb
+RUN pip install xvfbwrapper
+# BASH command
+ADD conf/bashrc-term /root/.bashrc
+COPY conf/.jupyter /root/.jupyter
+COPY run_jupyter.sh /
+# Jupyter port
+EXPOSE 8888
+# Store notebooks in this mounted directory
+VOLUME /main/notebooks
+CMD ["/run_jupyter.sh"]
