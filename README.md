@@ -9,13 +9,13 @@ Docker is an open platform for developing, shipping, and running applications. Y
 
 + [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
-Once you have installed Docker Desktop for your operating system then enable the docker comand line (`Docker CLI`) and pull the goSPL Docker image from the terminal using the following:
+Once you have installed Docker Desktop for your operating system then enable the docker comand line (`Docker CLI`) and pull the badlands Docker image from the terminal using the following:
 
 ```bash
 docker pull badlandsmodel/badlands:conda-container
 ```
 
-Once pulled, you can run the **gosplcontainer** using:
+Once pulled, you can run the **container** using:
 ```bash
 docker run -it -p 8888:8888 -d -v localDIR:/main/notebooks badlandsmodel/badlands:conda-container
 ```
